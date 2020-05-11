@@ -30,5 +30,7 @@
             WRITE(*,'(A,I0)') "Version (Int): ",version_int
             WRITE(*,'(2A)') "Wind Forcing: ",TRIM(wind_forcing)
 
+            CALL CHECK_ERR(ftnini_deinit(ini))
+
         END PROGRAM ftnTest
 

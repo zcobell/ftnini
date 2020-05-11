@@ -108,11 +108,12 @@
               this%ptr = c_createFtnIni(filename//C_NULL_CHAR,ierr)
           END FUNCTION ftnini_init
 
-          SUBROUTINE ftnini_deinit(this)
+          INTEGER FUNCTION ftnini_deinit(this) RESULT(ierr)
               IMPLICIT NONE
               TYPE(FTNINI),INTENT(IN) :: this
               CALL c_deleteFtnIni(this%ptr)
-          END SUBROUTINE ftnini_deinit
+              ierr = 0
+          END FUNCTION ftnini_deinit
 
           SUBROUTINE c2f_copyStringToFortran(c_string,c_string_len) BIND(C,NAME="c2f_copyStringToFortran")
               IMPLICIT NONE
