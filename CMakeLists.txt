@@ -145,7 +145,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/CMakeFiles)
 ###########################################################################
 #  FtnInik Library
 ###########################################################################
-SET( FTNINI_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ftnini.cpp ${CMAKE_CURRENT_SOURCE_DIR}/ftnini.F90 )
+SET( FTNINI_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/ftnini.cpp 
+                    ${CMAKE_CURRENT_SOURCE_DIR}/src/ftnini.F90 )
 
 ADD_LIBRARY( ftnini ${FTNINI_LIBTYPE} ${FTNINI_SOURCES} )
 
@@ -183,11 +184,15 @@ ENDIF(APPLE)
 
 ###########################################################################
 
-ADD_EXECUTABLE( ftn_testing ${CMAKE_CURRENT_SOURCE_DIR}/ftnTest.F90 )
+###########################################################################
+# Test Code
+###########################################################################
+ADD_EXECUTABLE( ftn_testing ${CMAKE_CURRENT_SOURCE_DIR}/testing/ftnTest.F90 )
 TARGET_LINK_LIBRARIES( ftn_testing ftnini )
 TARGET_INCLUDE_DIRECTORIES( ftn_testing PRIVATE ${CMAKE_BINARY_DIR}/CMakeFiles/ftnini )
-
-ADD_EXECUTABLE( c_testing ${CMAKE_CURRENT_SOURCE_DIR}/cTest.cpp )
+TARGET_INCLUDE_DIRECTORIES( ftn_testing PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src )
+SET_TARGET_PROPERTIES( ftn_testing PROPERTIES LINKER_LANGUAGE "Fortran" )
+###########################################################################
 
 
 #IF(SMARTSTACK_BUILD_TESTS)
