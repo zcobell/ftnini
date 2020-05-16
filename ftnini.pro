@@ -20,9 +20,9 @@ SOURCES += \
   src/ftnini.cpp
 
 HEADERS += \
-  src/INIReader.h
+  src/inifile.h
 
-INCLUDEPATH += src
+INCLUDEPATH += src thirdparty
 
 # Default rules for deployment.
 unix {
