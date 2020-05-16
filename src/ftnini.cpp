@@ -35,9 +35,15 @@ int ftnini_getInteger(void* ptr, const char* section, const char* name,
 int ftnini_getBool(void* ptr, const char* section, const char* name,
                    bool& value);
 void ftnini_errorString(void* ptr);
-void c2f_copyStringToFortran(const char*, int n);
+void c2f_copyStringToFortran(const char*, int n); // Fortran function in ftnini.F90
 }
 
+/**
+ * @brief Initialization function called from Fortran
+ * @param filename name of the file to read
+ * @param ierr error code
+ * @return pointer to created object
+ */
 void* ftnini_init(const char* filename, int& ierr) {
   IniFile* reader = new IniFile(filename);
   if (reader->read() != 0) {
@@ -49,6 +55,10 @@ void* ftnini_init(const char* filename, int& ierr) {
   return reinterpret_cast<void*>(reader);
 }
 
+/**
+ * @brief Deconstruction function called from Fortran
+ * @param ptr pointer to IniFile object
+ */
 void ftnini_deinit(void* ptr) {
   if (ptr) {
     IniFile* reader = reinterpret_cast<IniFile*>(ptr);
@@ -56,6 +66,14 @@ void ftnini_deinit(void* ptr) {
   }
 }
 
+/**
+ * @brief Templatized function to get a value from the IniFile object
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @return error code
+ */
 template <typename T>
 int ftnini_get(void* ptr, const char* section, const char* name, T& value) {
   if (ptr) {
@@ -72,6 +90,13 @@ int ftnini_get(void* ptr, const char* section, const char* name, T& value) {
   }
 }
 
+/**
+ * @brief Function go get a string value and copy to the Fortran memory buffer
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @return error code
+ */
 int ftnini_getString(void* ptr, const char* section, const char* name) {
   if (ptr) {
     IniFile* reader = reinterpret_cast<IniFile*>(ptr);
@@ -89,26 +114,62 @@ int ftnini_getString(void* ptr, const char* section, const char* name) {
   }
 }
 
+/**
+ * @brief Function called from Fortran to get a double (i.e. REAL(8) )
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @return error code
+ */
 int ftnini_getDouble(void* ptr, const char* section, const char* name,
                      double& value) {
   return ftnini_get<double>(ptr, section, name, value);
 }
 
+/**
+ * @brief Function called from Fortran to get a float (i.e. REAL(4) )
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @return error code
+ */
 int ftnini_getFloat(void* ptr, const char* section, const char* name,
                     float& value) {
   return ftnini_get<float>(ptr, section, name, value);
 }
 
+/**
+ * @brief Function called from Fortran to get an integer
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @return error code
+ */
 int ftnini_getInteger(void* ptr, const char* section, const char* name,
                       int& value) {
   return ftnini_get<int>(ptr, section, name, value);
 }
 
+/**
+ * @brief Function called from Fortran to get a bool (i.e. LOGICAL )
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @return error code
+ */
 int ftnini_getBool(void* ptr, const char* section, const char* name,
                    bool& value) {
   return ftnini_get<bool>(ptr, section, name, value);
 }
 
+/**
+ * @brief Function to return the error string
+ * @param ptr pointer to IniFile object
+ */
 void ftnini_errorString(void* ptr) {
   if (ptr) {
     IniFile* reader = reinterpret_cast<IniFile*>(ptr);
