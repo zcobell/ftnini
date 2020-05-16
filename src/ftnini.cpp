@@ -35,7 +35,8 @@ int ftnini_getInteger(void* ptr, const char* section, const char* name,
 int ftnini_getBool(void* ptr, const char* section, const char* name,
                    bool& value);
 void ftnini_errorString(void* ptr);
-void c2f_copyStringToFortran(const char*, int n); // Fortran function in ftnini.F90
+void c2f_copyStringToFortran(const char*,
+                             int n);  // Fortran function in ftnini.F90
 }
 
 /**
@@ -86,6 +87,9 @@ int ftnini_get(void* ptr, const char* section, const char* name, T& value) {
       return 0;
     }
   } else {
+    std::cerr
+        << "[WARNING]: Uninitialized pointer passed to ftnini_get function"
+        << std::endl;
     return 1;
   }
 }
@@ -110,6 +114,9 @@ int ftnini_getString(void* ptr, const char* section, const char* name) {
       return 0;
     }
   } else {
+    std::cerr
+        << "[WARNING]: Uninitialized pointer passed to ftnini_get function"
+        << std::endl;
     return 1;
   }
 }
