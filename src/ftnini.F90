@@ -83,16 +83,18 @@
 
             INTEGER(KIND=C_INT) FUNCTION c_ftnini_getString(ptr,section,name) &
                 BIND(C,NAME="ftnini_getString")
-                USE,INTRINSIC :: ISO_C_BINDING,ONLY: C_DOUBLE,C_CHAR,C_PTR,C_INT
+                USE,INTRINSIC :: ISO_C_BINDING,ONLY: C_CHAR,C_PTR,C_INT
                 IMPLICIT NONE
                 TYPE(C_PTR),VALUE,INTENT(IN)      :: ptr
                 CHARACTER(KIND=C_CHAR),INTENT(IN) :: section
                 CHARACTER(KIND=C_CHAR),INTENT(IN) :: name
             END FUNCTION c_ftnini_getString
 
-            SUBROUTINE c_ftnini_errorString() &
+            SUBROUTINE c_ftnini_errorString(ptr) &
                 BIND(C,NAME="ftnini_errorString")
+                USE,INTRINSIC :: ISO_C_BINDING,ONLY: C_PTR
                 IMPLICIT NONE
+                TYPE(C_PTR),VALUE,INTENT(IN) :: ptr
             END SUBROUTINE c_ftnini_errorString
 
           END INTERFACE
@@ -187,10 +189,10 @@
               IF(ALLOCATED(c_string_buffer))DEALLOCATE(c_string_buffer)
           END FUNCTION ftnini_getString
 
-          SUBROUTINE ftnini_errorString()
+          SUBROUTINE ftnini_errorString(ptr)
             IMPLICIT NONE
-            CALL c_ftnini_errorString()
+            TYPE(FTNINI),INTENT(IN) :: ptr
+            CALL c_ftnini_errorString(ptr%ptr)
           END SUBROUTINE ftnini_errorString
-
 
         END MODULE FTNINIMODULE
