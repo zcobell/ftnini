@@ -30,8 +30,22 @@ int ftnini_getDouble(void* ptr, const char* section, const char* name,
                      double& value);
 int ftnini_getFloat(void* ptr, const char* section, const char* name,
                     float& value);
+int ftnini_getLongDouble(void* ptr, const char* section, const char* name,
+                         long double& value);
+int ftnini_getShort(void* ptr, const char* section, const char* name,
+                    short& value, bool& ok);
 int ftnini_getInteger(void* ptr, const char* section, const char* name,
                       int& value, bool& ok);
+int ftnini_getLong(void* ptr, const char* section, const char* name,
+                   long& value, bool& ok);
+int ftnini_getLongLong(void* ptr, const char* section, const char* name,
+                       long long& value, bool& ok);
+int ftnini_getUnsigned(void* ptr, const char* section, const char* name,
+                       unsigned& value, bool& ok);
+int ftnini_getUnsignedLong(void* ptr, const char* section, const char* name,
+                           unsigned long& value, bool& ok);
+int ftnini_getUnsignedLongLong(void* ptr, const char* section, const char* name,
+                               unsigned long long& value, bool& ok);
 int ftnini_getBool(void* ptr, const char* section, const char* name,
                    bool& value);
 void ftnini_errorString(void* ptr);
@@ -135,7 +149,21 @@ int ftnini_getString(void* ptr, const char* section, const char* name) {
 int ftnini_getDouble(void* ptr, const char* section, const char* name,
                      double& value) {
   bool ok;
-  return ftnini_get<double>(ptr, section, name, value, ok);
+  return ftnini_get(ptr, section, name, value, ok);
+}
+
+/**
+ * @brief Function called from Fortran to get a long double (i.e. REAL(16) )
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @return error code
+ */
+int ftnini_getLongDouble(void* ptr, const char* section, const char* name,
+                         long double& value) {
+  bool ok;
+  return ftnini_get(ptr, section, name, value, ok);
 }
 
 /**
@@ -149,7 +177,21 @@ int ftnini_getDouble(void* ptr, const char* section, const char* name,
 int ftnini_getFloat(void* ptr, const char* section, const char* name,
                     float& value) {
   bool ok;
-  return ftnini_get<float>(ptr, section, name, value, ok);
+  return ftnini_get(ptr, section, name, value, ok);
+}
+
+/**
+ * @brief Function called from Fortran to get a short integer
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @param[optional] ok true if there is a potential loss in precision
+ * @return error code
+ */
+int ftnini_getShort(void* ptr, const char* section, const char* name,
+                    short& value, bool& ok) {
+  return ftnini_get(ptr, section, name, value, ok);
 }
 
 /**
@@ -163,7 +205,77 @@ int ftnini_getFloat(void* ptr, const char* section, const char* name,
  */
 int ftnini_getInteger(void* ptr, const char* section, const char* name,
                       int& value, bool& ok) {
-  return ftnini_get<int>(ptr, section, name, value, ok);
+  return ftnini_get(ptr, section, name, value, ok);
+}
+
+/**
+ * @brief Function called from Fortran to get a long integer
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @param[optional] ok true if there is a potential loss in precision
+ * @return error code
+ */
+int ftnini_getLong(void* ptr, const char* section, const char* name,
+                   long& value, bool& ok) {
+  return ftnini_get(ptr, section, name, value, ok);
+}
+
+/**
+ * @brief Function called from Fortran to get a long long integer
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @param[optional] ok true if there is a potential loss in precision
+ * @return error code
+ */
+int ftnini_getLongLong(void* ptr, const char* section, const char* name,
+                       long long& value, bool& ok) {
+  return ftnini_get(ptr, section, name, value, ok);
+}
+
+/**
+ * @brief Function called from Fortran to get an unsigned integer
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @param[optional] ok true if there is a potential loss in precision
+ * @return error code
+ */
+int ftnini_getUnsigned(void* ptr, const char* section, const char* name,
+                       unsigned& value, bool& ok) {
+  return ftnini_get(ptr, section, name, value, ok);
+}
+
+/**
+ * @brief Function called from Fortran to get an unsigned long integer
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @param[optional] ok true if there is a potential loss in precision
+ * @return error code
+ */
+int ftnini_getLongUnsigned(void* ptr, const char* section, const char* name,
+                           unsigned long& value, bool& ok) {
+  return ftnini_get(ptr, section, name, value, ok);
+}
+
+/**
+ * @brief Function called from Fortran to get an unsigned long long integer
+ * @param ptr pointer to IniFile object
+ * @param section ini file section
+ * @param name ini file name
+ * @param value returned value
+ * @param[optional] ok true if there is a potential loss in precision
+ * @return error code
+ */
+int ftnini_getLongLongUnsigned(void* ptr, const char* section, const char* name,
+                               unsigned long long& value, bool& ok) {
+  return ftnini_get(ptr, section, name, value, ok);
 }
 
 /**
@@ -177,7 +289,7 @@ int ftnini_getInteger(void* ptr, const char* section, const char* name,
 int ftnini_getBool(void* ptr, const char* section, const char* name,
                    bool& value) {
   bool ok;
-  return ftnini_get<bool>(ptr, section, name, value, ok);
+  return ftnini_get(ptr, section, name, value, ok);
 }
 
 /**
