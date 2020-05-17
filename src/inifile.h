@@ -19,6 +19,7 @@
 #ifndef INIFILE_H
 #define INIFILE_H
 
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -32,7 +33,13 @@
  */
 class IniFile {
  public:
-  enum ErrorCode { NoError, FileNotFound, FileParseError, KeyNotFound };
+  enum ErrorCode {
+    NoError,
+    FileNotFound,
+    FileParseError,
+    LossOfPrecision,
+    KeyNotFound
+  };
 
   /**
    * @brief Constructor
@@ -42,7 +49,7 @@ class IniFile {
       : m_initialized(false), m_filename(filename) {}
 
   /**
-   * @brief Constructor
+   * @overload
    * @param filename path to the ini file to read
    */
   IniFile(const char *filename) : m_initialized(false), m_filename(filename) {}
@@ -63,10 +70,6 @@ class IniFile {
       std::cerr << "[ERROR]: " << e.what() << std::endl;
       this->setError(FileParseError);
       return this->error();
-    } catch (const boost::property_tree::ini_parser::ini_parser_error &e) {
-      std::cerr << "[ERROR]: " << e.what() << std::endl;
-      this->setError(FileParseError);
-      return this->error();
     } catch (...) {
       std::cerr << "[ERROR]: could not read the specified ini file"
                 << std::endl;
@@ -84,15 +87,48 @@ class IniFile {
    * @param section ini file section
    * @param key ini file key
    * @param value returned value
+   * @param[optional] ok returns true if there is no expected loss in precicion
    * @return error code
    */
   template <typename T>
-  int get(const std::string &section, const std::string &key, T &value) {
+  int get(const std::string &section, const std::string &key, T &value,
+          bool &ok) {
     if (this->contains<T>(section, key)) {
       value = this->m_iniFile.get<T>(section + "." + key);
+      ok = true;
       this->setError(NoError);
       return this->error();
     } else {
+      // This is an additional check in the case that a float value was found,
+      // but the user requested an integral type. Warn the user that there is a
+      // loss in precision if rounding produces a different value, but don't
+      // error out.
+      if (std::is_integral<T>::value) {
+        if (this->contains<float>(section, key)) {
+          float v = this->m_iniFile.get<float>(section + "." + key);
+          float vround = std::round(v);
+          if (std::abs(vround - v) > std::numeric_limits<float>::epsilon()) {
+            std::cerr
+                << "[WARNING]: Possible loss of presision encountered when "
+                << "reading " << section << "-->" << key
+                << " as an integer from " << this->filename() << ". "
+                << std::endl
+                << "[WARNING]: Float value has been converted to integral type."
+                << std::endl;
+            ok = false;
+          } else {
+            ok = true;
+          }
+          value = static_cast<int>(vround);
+          this->setError(NoError);
+          return this->error();
+        } else {
+          ok = false;
+          this->setError<T>(KeyNotFound, section, key);
+          return this->error();
+        }
+      }
+      ok = false;
       this->setError<T>(KeyNotFound, section, key);
       return this->error();
     }
@@ -143,32 +179,12 @@ class IniFile {
    */
   int error() const { return static_cast<int>(this->m_errorCode); }
 
-  bool initialized() const;
+  bool initialized() const { return this->m_initialized; }
 
  private:
   template <typename T>
   struct Typestring {
     static std::string name() { return typeid(T).name(); }
-  };
-  template <>
-  struct Typestring<int> {
-    static std::string name() { return "integer"; }
-  };
-  template <>
-  struct Typestring<float> {
-    static std::string name() { return "float"; }
-  };
-  template <>
-  struct Typestring<double> {
-    static std::string name() { return "double"; }
-  };
-  template <>
-  struct Typestring<bool> {
-    static std::string name() { return "bool"; }
-  };
-  template <>
-  struct Typestring<unsigned> {
-    static std::string name() { return "unsigned"; }
   };
 
   /**
@@ -230,6 +246,41 @@ class IniFile {
   ErrorCode m_errorCode;
 };
 
-bool IniFile::initialized() const { return m_initialized; }
+template <>
+struct IniFile::Typestring<int> {
+  static std::string name() { return "integer"; }
+};
+template <>
+struct IniFile::Typestring<float> {
+  static std::string name() { return "float"; }
+};
+template <>
+struct IniFile::Typestring<double> {
+  static std::string name() { return "double"; }
+};
+template <>
+struct IniFile::Typestring<bool> {
+  static std::string name() { return "bool"; }
+};
+template <>
+struct IniFile::Typestring<unsigned> {
+  static std::string name() { return "unsigned"; }
+};
+template <>
+struct IniFile::Typestring<long> {
+  static std::string name() { return "long"; }
+};
+template <>
+struct IniFile::Typestring<unsigned long> {
+  static std::string name() { return "unsigned long"; }
+};
+template <>
+struct IniFile::Typestring<long long> {
+  static std::string name() { return "long long"; }
+};
+template <>
+struct IniFile::Typestring<unsigned long long> {
+  static std::string name() { return "unsigned long long"; }
+};
 
 #endif  // INIFILE_H

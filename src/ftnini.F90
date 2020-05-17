@@ -71,14 +71,15 @@
                 REAL(C_FLOAT),INTENT(OUT)         :: value
             END FUNCTION c_ftnini_getFloat
 
-            INTEGER(KIND=C_INT) FUNCTION c_ftnini_getInteger(ptr,section,name,value) &
+            INTEGER(KIND=C_INT) FUNCTION c_ftnini_getInteger(ptr,section,name,value,ok) &
                 BIND(C,NAME="ftnini_getInteger") RESULT(rslt)
-                USE,INTRINSIC :: ISO_C_BINDING,ONLY: C_DOUBLE,C_CHAR,C_PTR,C_INT
+                USE,INTRINSIC :: ISO_C_BINDING,ONLY: C_BOOL,C_DOUBLE,C_CHAR,C_PTR,C_INT
                 IMPLICIT NONE
                 TYPE(C_PTR),VALUE,INTENT(IN)      :: ptr
                 CHARACTER(KIND=C_CHAR),INTENT(IN) :: section
                 CHARACTER(KIND=C_CHAR),INTENT(IN) :: name
                 INTEGER(C_INT),INTENT(OUT)        :: value
+                LOGICAL(C_BOOL),INTENT(OUT)       :: ok
             END FUNCTION c_ftnini_getInteger
 
             INTEGER(KIND=C_INT) FUNCTION c_ftnini_getString(ptr,section,name) &
@@ -139,15 +140,22 @@
               rslt = c_rslt
           END FUNCTION ftnini_getBool
 
-          INTEGER FUNCTION ftnini_getInteger(ptr, section, name, rslt) RESULT(ierr)
+          INTEGER FUNCTION ftnini_getInteger(ptr, section, name, rslt, ok) RESULT(ierr)
               IMPLICIT NONE
-              TYPE(FTNINI),INTENT(IN) :: ptr
-              CHARACTER(*),INTENT(IN) :: section
-              CHARACTER(*),INTENT(IN) :: name
-              INTEGER,INTENT(OUT)     :: rslt
-              INTEGER(C_INT)          :: c_rslt
-              ierr = c_ftnini_getInteger(ptr%ptr,section//C_NULL_CHAR,name//C_NULL_CHAR,c_rslt)
+              TYPE(FTNINI),INTENT(IN)              :: ptr
+              CHARACTER(*),INTENT(IN)              :: section
+              CHARACTER(*),INTENT(IN)              :: name
+              INTEGER,INTENT(OUT)                  :: rslt
+              LOGICAL,INTENT(OUT),OPTIONAL         :: ok
+              INTEGER(C_INT)                       :: c_rslt
+              LOGICAL(C_BOOL)                      :: isok
+
+              ierr = c_ftnini_getInteger(ptr%ptr,section//C_NULL_CHAR,&
+                                         name//C_NULL_CHAR,c_rslt,isok)
               rslt = INT(c_rslt)
+              IF(PRESENT(ok))THEN
+                ok = isok
+              ENDIF
           END FUNCTION ftnini_getInteger
 
           INTEGER FUNCTION ftnini_getFloat(ptr, section, name, rslt) RESULT(ierr)

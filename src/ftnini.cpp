@@ -31,7 +31,7 @@ int ftnini_getDouble(void* ptr, const char* section, const char* name,
 int ftnini_getFloat(void* ptr, const char* section, const char* name,
                     float& value);
 int ftnini_getInteger(void* ptr, const char* section, const char* name,
-                      int& value);
+                      int& value, bool& ok);
 int ftnini_getBool(void* ptr, const char* section, const char* name,
                    bool& value);
 void ftnini_errorString(void* ptr);
@@ -73,14 +73,16 @@ void ftnini_deinit(void* ptr) {
  * @param section ini file section
  * @param name ini file name
  * @param value returned value
+ * @param[optional] ok true if there is a possible loss of precision
  * @return error code
  */
 template <typename T>
-int ftnini_get(void* ptr, const char* section, const char* name, T& value) {
+int ftnini_get(void* ptr, const char* section, const char* name, T& value,
+               bool& ok) {
   if (ptr) {
     IniFile* reader = reinterpret_cast<IniFile*>(ptr);
     if (!reader->initialized()) return 1;
-    int ierr = reader->get<T>(section, name, value);
+    int ierr = reader->get<T>(section, name, value, ok);
     if (ierr != 0) {
       return reader->error();
     } else {
@@ -103,10 +105,11 @@ int ftnini_get(void* ptr, const char* section, const char* name, T& value) {
  */
 int ftnini_getString(void* ptr, const char* section, const char* name) {
   if (ptr) {
+    bool ok;
     IniFile* reader = reinterpret_cast<IniFile*>(ptr);
     if (!reader->initialized()) return 1;
     std::string v;
-    int ierr = reader->get<std::string>(section, name, v);
+    int ierr = reader->get<std::string>(section, name, v, ok);
     if (ierr != 0) {
       return reader->error();
     } else {
@@ -131,7 +134,8 @@ int ftnini_getString(void* ptr, const char* section, const char* name) {
  */
 int ftnini_getDouble(void* ptr, const char* section, const char* name,
                      double& value) {
-  return ftnini_get<double>(ptr, section, name, value);
+  bool ok;
+  return ftnini_get<double>(ptr, section, name, value, ok);
 }
 
 /**
@@ -144,7 +148,8 @@ int ftnini_getDouble(void* ptr, const char* section, const char* name,
  */
 int ftnini_getFloat(void* ptr, const char* section, const char* name,
                     float& value) {
-  return ftnini_get<float>(ptr, section, name, value);
+  bool ok;
+  return ftnini_get<float>(ptr, section, name, value, ok);
 }
 
 /**
@@ -153,11 +158,12 @@ int ftnini_getFloat(void* ptr, const char* section, const char* name,
  * @param section ini file section
  * @param name ini file name
  * @param value returned value
+ * @param[optional] ok true if there is a potential loss in precision
  * @return error code
  */
 int ftnini_getInteger(void* ptr, const char* section, const char* name,
-                      int& value) {
-  return ftnini_get<int>(ptr, section, name, value);
+                      int& value, bool& ok) {
+  return ftnini_get<int>(ptr, section, name, value, ok);
 }
 
 /**
@@ -170,7 +176,8 @@ int ftnini_getInteger(void* ptr, const char* section, const char* name,
  */
 int ftnini_getBool(void* ptr, const char* section, const char* name,
                    bool& value) {
-  return ftnini_get<bool>(ptr, section, name, value);
+  bool ok;
+  return ftnini_get<bool>(ptr, section, name, value, ok);
 }
 
 /**
